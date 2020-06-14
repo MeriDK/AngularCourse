@@ -18,6 +18,10 @@
       </mat-card-actions>
     </mat-card>
   </div>
+  <div fxFlex [hidden]="dish">
+    <mat-spinner></mat-spinner>
+    <h4>Loading . . . Please Wait</h4>
+  </div>
 
   <div fxFlex="40" *ngIf="dish">
     <h1>Comments</h1>
@@ -28,5 +32,9 @@
         <div matLine>-- {{ comment.author }} {{ comment.date | date }}</div>
       </mat-list-item>
     </mat-list>
+  </div>
+  <div fxFlex [hidden]="dish">
+    <mat-spinner></mat-spinner>
+    <h4>Loading . . . Please Wait</h4>
   </div>
 </div>
