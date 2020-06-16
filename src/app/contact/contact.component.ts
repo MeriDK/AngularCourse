@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Feedback, ContactType } from '../shared/feedback';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { flyInOut } from '../anime/app.animation';
+import { visibility, flyInOut } from '../anime/app.animation';
+import { FeedbackService } from '../services/feedback.service';
 
 @Component({
   selector: 'app-contact',
@@ -12,14 +13,20 @@ import { flyInOut } from '../anime/app.animation';
     style: 'display: block'
   },
   animations: [
-    flyInOut()
+    flyInOut(),
+    visibility()
   ]
 })
 export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  feedbackPost: Feedback;
   contactType = ContactType;
+  errMess: string;
+  formVisibility = 'shown';
+  submitVisibility = 'hidden';
+  feedbackVisibility = 'hidden';
 
   @ViewChild('fform') feedbackFormDirective;
 
@@ -51,7 +58,10 @@ export class ContactComponent implements OnInit {
     }
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private feedbackService: FeedbackService
+  ) {
     this.createForm();
   }
 
@@ -65,7 +75,7 @@ export class ContactComponent implements OnInit {
       telnum: [0, [Validators.required, Validators.pattern]],
       email: ['', Validators.required, Validators.email],
       agree: false,
-      contactType: 'None',
+      contacttype: 'None',
       message: ''
     });
 
@@ -96,6 +106,25 @@ export class ContactComponent implements OnInit {
 
   onSubmit() {
     this.feedback = this.feedbackForm.value;
+    this.formVisibility = 'hidden';
+    this.submitVisibility = 'shown';
+    this.feedbackService.submitFeedback(this.feedback)
+      .subscribe(
+        feedback => {
+          this.feedbackPost = feedback;
+          this.submitVisibility = 'hidden';
+          this.feedbackVisibility = 'shown';
+          setTimeout(() => {
+            this.feedbackVisibility = 'hidden';
+            this.formVisibility = 'shown';
+          }, 5000);
+        },
+        errmess => {
+          this.submitVisibility = 'hidden';
+          this.feedbackPost = null;
+          this.errMess = errmess;
+        }
+      );
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
